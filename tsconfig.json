@@ -1,29 +1,36 @@
 {
   "compilerOptions": {
-    // Environment setup & latest features
+    // Ambiente moderno
     "lib": ["ESNext"],
     "target": "ESNext",
+
+    // Módulos / bundler
     "module": "Preserve",
     "moduleDetection": "force",
-    "jsx": "react-jsx",
-    "allowJs": true,
-
-    // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
 
-    // Best practices
+    // Só TypeScript, sem JS
+    "allowJs": false,
+
+    // Security flags
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
 
+    // Emit controlado pelo Bun
+    "noEmit": true,
+
+    // Tipos do Bun
+    "types": ["bun-types"],
+
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
-  }
+  },
+  "include": ["src"]
 }
