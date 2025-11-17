@@ -8,6 +8,13 @@
 
 <body>
   <h1>WebSocket Test</h1>
+
+  <div style="margin-bottom: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;">
+    <h2>Valor Compartilhado: <span id="valorDisplay">0</span></h2>
+    <input id="valorInput" type="number" placeholder="Novo valor" />
+    <button id="updateValor">Atualizar Valor</button>
+  </div>
+
   <input id="msg" placeholder="Digite uma mensagem" />
   <button id="send">Enviar</button>
 
@@ -17,6 +24,9 @@
     const logEl = document.getElementById("log");
     const input = document.getElementById("msg");
     const btn = document.getElementById("send");
+    const valorDisplay = document.getElementById("valorDisplay");
+    const valorInput = document.getElementById("valorInput");
+    const updateValorBtn = document.getElementById("updateValor");
 
     const ws = new WebSocket("ws://localhost:3000");
 
@@ -25,6 +35,17 @@
     };
 
     ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+
+        if (data.type === "valor") {
+          valorDisplay.textContent = data.valor;
+          return;
+        }
+      } catch {
+        // Não é JSON, é mensagem normal
+      }
+
       logEl.textContent += `📥 ${event.data}\n`;
     };
 
@@ -37,6 +58,13 @@
       if (!text) return;
       ws.send(text);
       input.value = "";
+    };
+
+    updateValorBtn.onclick = () => {
+      const valor = parseFloat(valorInput.value);
+      if (isNaN(valor)) return;
+      ws.send(JSON.stringify({ type: "updateValor", valor }));
+      valorInput.value = "";
     };
   </script>
 </body>

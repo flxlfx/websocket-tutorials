@@ -7,6 +7,9 @@ type ClientData = {
 // Guarda as conexões ativas
 const clients = new Map<ServerWebSocket<ClientData>, string>();
 
+// Variável compartilhada entre todos os clientes
+let valor = 0;
+
 const server = Bun.serve<ClientData>({
   port: 3000,
   hostname: "0.0.0.0",
@@ -34,6 +37,7 @@ const server = Bun.serve<ClientData>({
 
       console.log(`🔌 Cliente conectado: ${id}`);
       ws.send(`👋 Bem-vindo! Seu id é ${id}`);
+      ws.send(JSON.stringify({ type: "valor", valor }));
     },
 
     // Quando recebe mensagem de algum cliente
@@ -46,6 +50,25 @@ const server = Bun.serve<ClientData>({
         text = message;
       } else {
         text = new TextDecoder().decode(message);
+      }
+
+      // Tenta parsear como JSON para comandos
+      try {
+        const data = JSON.parse(text);
+        
+        if (data.type === "updateValor") {
+          valor = data.valor;
+          console.log(`📊 Valor atualizado para ${valor} por ${id}`);
+          
+          // Broadcast do novo valor para todos os clientes
+          const payload = JSON.stringify({ type: "valor", valor });
+          for (const [client] of clients.entries()) {
+            client.send(payload);
+          }
+          return;
+        }
+      } catch {
+        // Não é JSON, é mensagem normal
       }
 
       console.log(`💬 Mensagem de ${id}: ${text}`);
