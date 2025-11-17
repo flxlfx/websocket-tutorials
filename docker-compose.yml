@@ -2,7 +2,7 @@ services:
   websocket:
     build: .
     ports:
-      - "3000:3000"
+      - "3334:3334"
     environment:
       - NODE_ENV=production
     restart: unless-stopped

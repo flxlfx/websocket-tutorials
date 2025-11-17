@@ -11,7 +11,7 @@ const clients = new Map<ServerWebSocket<ClientData>, string>();
 let valor = 0;
 
 const server = Bun.serve<ClientData>({
-  port: 3000,
+  port: 3334,
   hostname: "0.0.0.0",
 
   // Rota HTTP normal (pra testar no navegador)
@@ -24,7 +24,7 @@ const server = Bun.serve<ClientData>({
 
     // Resposta HTTP padrão (se não for WS)
     return new Response(
-      "Servidor WebSocket rodando. Conecte em ws://localhost:3000",
+      "Servidor WebSocket rodando. Conecte em ws://localhost:3334",
       { status: 200 }
     );
   },
@@ -55,11 +55,11 @@ const server = Bun.serve<ClientData>({
       // Tenta parsear como JSON para comandos
       try {
         const data = JSON.parse(text);
-        
+
         if (data.type === "updateValor") {
           valor = data.valor;
           console.log(`📊 Valor atualizado para ${valor} por ${id}`);
-          
+
           // Broadcast do novo valor para todos os clientes
           const payload = JSON.stringify({ type: "valor", valor });
           for (const [client] of clients.entries()) {

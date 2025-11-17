@@ -28,7 +28,7 @@
     const valorInput = document.getElementById("valorInput");
     const updateValorBtn = document.getElementById("updateValor");
 
-    const ws = new WebSocket("ws://localhost:3000");
+    const ws = new WebSocket("ws://localhost:3334");
 
     ws.onopen = () => {
       logEl.textContent += "✅ Conectado\n";
