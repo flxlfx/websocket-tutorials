@@ -1,12 +1,16 @@
 {
-  "name": "exemple-websocket",
-  "module": "index.ts",
+  "name": "websocket-tutorials",
+  "module": "src/server.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "dev": "bun run src/server.ts"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "bun-types": "^1.3.2"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }

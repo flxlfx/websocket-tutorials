@@ -6,9 +6,10 @@
       "name": "exemple-websocket",
       "devDependencies": {
         "@types/bun": "latest",
+        "bun-types": "^1.3.2",
       },
       "peerDependencies": {
-        "typescript": "^5",
+        "typescript": "^5.9.3",
       },
     },
   },
