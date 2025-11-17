@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Teste WebSocket Bun</title>
+</head>
+
+<body>
+  <h1>WebSocket Test</h1>
+  <input id="msg" placeholder="Digite uma mensagem" />
+  <button id="send">Enviar</button>
+
+  <pre id="log"></pre>
+
+  <script>
+    const logEl = document.getElementById("log");
+    const input = document.getElementById("msg");
+    const btn = document.getElementById("send");
+
+    const ws = new WebSocket("ws://localhost:3000");
+
+    ws.onopen = () => {
+      logEl.textContent += "✅ Conectado\n";
+    };
+
+    ws.onmessage = (event) => {
+      logEl.textContent += `📥 ${event.data}\n`;
+    };
+
+    ws.onclose = () => {
+      logEl.textContent += "❌ Desconectado\n";
+    };
+
+    btn.onclick = () => {
+      const text = input.value;
+      if (!text) return;
+      ws.send(text);
+      input.value = "";
+    };
+  </script>
+</body>
+
+</html>
