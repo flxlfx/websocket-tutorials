@@ -73,7 +73,7 @@ const server = Bun.serve<ClientData>({
       );
       try {
         const body = (await req.json()) as ShortcutWebhook;
-        console.log("Evento recebido:", JSON.stringify(body));
+        console.log("Evento recebido:", JSON.stringify(body, null, 2));
 
         // Validação básica do Shortcut
         if (body.actions && body.actions.length > 0) {
