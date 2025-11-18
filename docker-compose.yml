@@ -5,4 +5,6 @@ services:
       - "3334:3334"
     environment:
       - NODE_ENV=production
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
     restart: unless-stopped
