@@ -61,9 +61,16 @@ const server = Bun.serve<ClientData>({
   // Rota HTTP normal (pra testar no navegador)
   async fetch(req, server) {
     const url = new URL(req.url);
+    console.log("📥 Request recebido:", req.method, url.pathname);
 
     // Rota webhook do Shortcut
     if (url.pathname === "/webhook/shortcut" && req.method === "POST") {
+      console.log(
+        "🔴 WEBHOOK CHAMADO - Método:",
+        req.method,
+        "Path:",
+        url.pathname
+      );
       try {
         const body = (await req.json()) as ShortcutWebhook;
         console.log("Evento recebido:", JSON.stringify(body));
