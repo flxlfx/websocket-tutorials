@@ -4,17 +4,42 @@ type ClientData = {
   id: string;
 };
 
-type ShortcutAction = {
-  action: string;
+export interface Reference {
+  id: any;
   entity_type: string;
   name: string;
-  id: number;
-  app_url: string;
-};
+  app_url?: string;
+  type?: string;
+}
 
-type ShortcutWebhook = {
-  actions?: ShortcutAction[];
-};
+export interface Action {
+  app_url: string;
+  description?: string;
+  entity_type: string;
+  story_type: string;
+  name: string;
+  external_links: string[];
+  requested_by_id: string;
+  group_id: string;
+  workflow_state_id: number;
+  follower_ids: string[];
+  id: number;
+  position: number;
+  action: string;
+  project_id: number;
+  deadline: string;
+}
+
+export interface ShortcutWebhook {
+  id: string;
+  changed_at: string;
+  version: string;
+  primary_id: number;
+  actor_name: string;
+  member_id: string;
+  actions?: Action[];
+  references?: Reference[];
+}
 
 // Guarda as conexões ativas
 const clients = new Map<ServerWebSocket<ClientData>, string>();
@@ -89,8 +114,16 @@ const server = Bun.serve<ClientData>({
         // Validação básica do Shortcut
         if (body.actions && body.actions.length > 0) {
           for (const action of body.actions) {
-            // Verifica se é criação de story
-            if (action.action === "create" && action.entity_type === "story") {
+            // Verifica se é criação de story e se tem referência ao "WL | Helper"
+            const hasWLHelper = body.references?.some(
+              (ref) => ref.name === "WL | Helper"
+            );
+
+            if (
+              action.action === "create" &&
+              action.entity_type === "story" &&
+              hasWLHelper
+            ) {
               const storyName = action.name;
               const storyId = action.id;
               const appUrl = action.app_url;
