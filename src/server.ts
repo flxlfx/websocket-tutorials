@@ -73,14 +73,14 @@ const server = Bun.serve<ClientData>({
         url.pathname
       );
 
-      const signature = req.headers.get("Payload-Signature");
-      if (signature !== SHORTCUT_WEBHOOK_SECRET) {
-        console.error("❌ Signature inválida:", signature);
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { "Content-Type": "application/json" },
-        });
-      }
+      // const signature = req.headers.get("Payload-Signature");
+      // if (signature !== SHORTCUT_WEBHOOK_SECRET) {
+      //   console.error("❌ Signature inválida:", signature);
+      //   return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      //     status: 401,
+      //     headers: { "Content-Type": "application/json" },
+      //   });
+      // }
 
       try {
         const body = (await req.json()) as ShortcutWebhook;
