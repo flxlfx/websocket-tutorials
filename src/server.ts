@@ -127,8 +127,27 @@ const server = Bun.serve<ClientData>({
               const storyName = action.name;
               const storyId = action.id;
               const appUrl = action.app_url;
+              const externalLinks = action.external_links;
+              const description = action.description;
 
-              const message = `⚡ **Nova Story Criada!**\n\n🆔 ID: ${storyId}\n📝 Nome: ${storyName}\n🔗 [Abrir no Shortcut](${appUrl})`;
+              let empresa = "";
+              let atendente = "";
+
+              if (description) {
+                const empresaMatch = description.match(/Empresa:([^\s\n]+)/);
+                const atendenteMatch = description.match(
+                  /Grupo Origem:[^\n]+\n([^:]+)\s:/
+                );
+
+                if (empresaMatch?.[1]) empresa = empresaMatch[1].trim();
+                if (atendenteMatch?.[1]) atendente = atendenteMatch[1].trim();
+              }
+
+              const message = `🚨 [${storyId} ${storyName}](${appUrl})\n\n${
+                empresa ? `Empresa: ${empresa}\n` : ""
+              }${atendente ? `Atendente: ${atendente}\n` : ""}${
+                externalLinks.length > 0 ? "\n" : ""
+              }${externalLinks.map((link) => `[Link](${link})`).join("\n")}`;
 
               await sendToTelegram(message);
             }
