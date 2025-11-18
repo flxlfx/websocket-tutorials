@@ -25,6 +25,7 @@ let valor = 0;
 // Variáveis de ambiente do Telegram
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const SHORTCUT_WEBHOOK_SECRET = process.env.SHORTCUT_WEBHOOK_SECRET;
 
 // Função para enviar mensagem ao Telegram
 async function sendToTelegram(text: string): Promise<void> {
@@ -71,6 +72,16 @@ const server = Bun.serve<ClientData>({
         "Path:",
         url.pathname
       );
+
+      const signature = req.headers.get("Payload-Signature");
+      if (signature !== SHORTCUT_WEBHOOK_SECRET) {
+        console.error("❌ Signature inválida:", signature);
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+
       try {
         const body = (await req.json()) as ShortcutWebhook;
         console.log("Evento recebido:", JSON.stringify(body, null, 2));
