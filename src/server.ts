@@ -4,18 +4,96 @@ type ClientData = {
   id: string;
 };
 
+type ShortcutAction = {
+  action: string;
+  entity_type: string;
+  name: string;
+  id: number;
+  app_url: string;
+};
+
+type ShortcutWebhook = {
+  actions?: ShortcutAction[];
+};
+
 // Guarda as conexões ativas
 const clients = new Map<ServerWebSocket<ClientData>, string>();
 
 // Variável compartilhada entre todos os clientes
 let valor = 0;
 
+// Variáveis de ambiente do Telegram
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+// Função para enviar mensagem ao Telegram
+async function sendToTelegram(text: string): Promise<void> {
+  if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.error("⚠️ TELEGRAM_TOKEN ou TELEGRAM_CHAT_ID não configurados");
+    return;
+  }
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: text,
+        parse_mode: "Markdown",
+      }),
+    });
+
+    if (!response.ok) {
+      console.error("Erro ao enviar para Telegram:", await response.text());
+    }
+  } catch (error) {
+    console.error("Erro Telegram:", error);
+  }
+}
+
 const server = Bun.serve<ClientData>({
   port: 3334,
   hostname: "0.0.0.0",
 
   // Rota HTTP normal (pra testar no navegador)
-  fetch(req, server) {
+  async fetch(req, server) {
+    const url = new URL(req.url);
+
+    // Rota webhook do Shortcut
+    if (url.pathname === "/webhook/shortcut" && req.method === "POST") {
+      try {
+        const body = (await req.json()) as ShortcutWebhook;
+        console.log("Evento recebido:", JSON.stringify(body));
+
+        // Validação básica do Shortcut
+        if (body.actions && body.actions.length > 0) {
+          for (const action of body.actions) {
+            // Verifica se é criação de story
+            if (action.action === "create" && action.entity_type === "story") {
+              const storyName = action.name;
+              const storyId = action.id;
+              const appUrl = action.app_url;
+
+              const message = `⚡ **Nova Story Criada!**\n\n🆔 ID: ${storyId}\n📝 Nome: ${storyName}\n🔗 [Abrir no Shortcut](${appUrl})`;
+
+              await sendToTelegram(message);
+            }
+          }
+        }
+
+        return new Response(JSON.stringify({ message: "Webhook processado" }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (e) {
+        console.error("Erro ao processar webhook:", e);
+        return new Response("Invalid JSON", { status: 400 });
+      }
+    }
+
     // Tenta fazer upgrade para WebSocket
     if (server.upgrade(req, { data: { id: crypto.randomUUID() } })) {
       // Se o upgrade foi aceito, não retornamos Response
@@ -91,11 +169,6 @@ const server = Bun.serve<ClientData>({
       console.log(
         `❌ Cliente desconectado: ${id} (code=${code}, reason=${reason})`
       );
-    },
-
-    // (opcional) tratar erro por conexão
-    error(ws, error) {
-      console.error("⚠️ Erro no WebSocket:", error);
     },
   },
 });

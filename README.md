@@ -1,15 +1,31 @@
 # exemple-websocket
 
-To install dependencies:
+Servidor WebSocket com webhook para Shortcut → Telegram.
+
+## Instalação
 
 ```bash
 bun install
 ```
 
-To run:
+## Configuração
+
+Configure as variáveis de ambiente:
 
 ```bash
-bun run index.ts
+export TELEGRAM_TOKEN=seu_token_do_bot
+export TELEGRAM_CHAT_ID=seu_chat_id
 ```
 
-This project was created using `bun init` in bun v1.3.2. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+## Execução
+
+```bash
+bun run dev
+```
+
+## Endpoints
+
+- **WebSocket**: `ws://localhost:3334`
+- **Webhook Shortcut**: `POST http://localhost:3334/webhook/shortcut`
+
+Servidor escuta na porta 3334.
