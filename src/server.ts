@@ -180,47 +180,50 @@ const server = Bun.serve<ClientData>({
       const signature = req.headers.get("sentry-hook-signature");
       const body = await req.text();
 
+      console.log("Signature:", signature);
+      console.log("Body:", body);
+
       // ⚠️ Validação mínima (não pule isso)
-      if (!signature) {
-        return new Response("Missing signature", { status: 401 });
-      }
+      // if (!signature) {
+      //   return new Response("Missing signature", { status: 401 });
+      // }
 
-      const payload = JSON.parse(body);
+      // const payload = JSON.parse(body);
 
-      if (payload.action !== "created") {
-        return new Response("Ignored", { status: 200 });
-      }
+      // if (payload.action !== "created") {
+      //   return new Response("Ignored", { status: 200 });
+      // }
 
-      const feedback = payload.data;
+      // const feedback = payload.data;
 
-      const shortcutPayload = {
-        user: feedback.name,
-        email: feedback.email,
-        comments: feedback.comments,
-        issue: feedback.issue?.title,
-        project: payload.project?.slug,
-        sentryUrl: feedback.issue?.url,
-      };
+      // const shortcutPayload = {
+      //   user: feedback.name,
+      //   email: feedback.email,
+      //   comments: feedback.comments,
+      //   issue: feedback.issue?.title,
+      //   project: payload.project?.slug,
+      //   sentryUrl: feedback.issue?.url,
+      // };
 
-      try {
-        const body = (await req.json()) as ShortcutWebhook;
-        console.log("Evento recebido:", JSON.stringify(body, null, 2));
+      // try {
+      //   const body = (await req.json()) as ShortcutWebhook;
+      //   console.log("Evento recebido:", JSON.stringify(body, null, 2));
 
-        const value = {
-          message: "Webhook processado",
-          data: shortcutPayload,
-        };
+      //   const value = {
+      //     message: "Webhook processado",
+      //     data: shortcutPayload,
+      //   };
 
-        console.log("Evento recebido:", JSON.stringify(value, null, 2));
+      //   console.log("Evento recebido:", JSON.stringify(value, null, 2));
 
-        return new Response(JSON.stringify(value), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      } catch (e) {
-        console.error("Erro ao processar webhook:", e);
-        return new Response("Invalid JSON", { status: 400 });
-      }
+      //   return new Response(JSON.stringify(value), {
+      //     status: 200,
+      //     headers: { "Content-Type": "application/json" },
+      //   });
+      // } catch (e) {
+      //   console.error("Erro ao processar webhook:", e);
+      //   return new Response("Invalid JSON", { status: 400 });
+      // }
     }
 
     // Resposta HTTP padrão (se não for WS)
