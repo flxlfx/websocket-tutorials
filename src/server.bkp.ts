@@ -89,10 +89,6 @@ const server = Bun.serve<ClientData>({
     const url = new URL(req.url);
     console.log("📥 Request recebido:", req.method, url.pathname);
 
-    if (req.method !== "POST") {
-      return new Response("Method Not Allowed", { status: 405 });
-    }
-
     // Rota webhook do Shortcut
     if (url.pathname === "/webhook/shortcut" && req.method === "POST") {
       console.log(
@@ -168,59 +164,10 @@ const server = Bun.serve<ClientData>({
       }
     }
 
-    // Rota webhook do Shortcut
-    if (url.pathname === "/webhook/sentry" && req.method === "POST") {
-      console.log(
-        "🔴 WEBHOOK SENTRY CHAMADO - Método:",
-        req.method,
-        "Path:",
-        url.pathname
-      );
-
-      const signature = req.headers.get("sentry-hook-signature");
-      const body = await req.text();
-
-      // ⚠️ Validação mínima (não pule isso)
-      if (!signature) {
-        return new Response("Missing signature", { status: 401 });
-      }
-
-      const payload = JSON.parse(body);
-
-      if (payload.action !== "created") {
-        return new Response("Ignored", { status: 200 });
-      }
-
-      const feedback = payload.data;
-
-      const shortcutPayload = {
-        user: feedback.name,
-        email: feedback.email,
-        comments: feedback.comments,
-        issue: feedback.issue?.title,
-        project: payload.project?.slug,
-        sentryUrl: feedback.issue?.url,
-      };
-
-      try {
-        const body = (await req.json()) as ShortcutWebhook;
-        console.log("Evento recebido:", JSON.stringify(body, null, 2));
-
-        const value = {
-          message: "Webhook processado",
-          data: shortcutPayload,
-        };
-
-        console.log("Evento recebido:", JSON.stringify(value, null, 2));
-
-        return new Response(JSON.stringify(value), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      } catch (e) {
-        console.error("Erro ao processar webhook:", e);
-        return new Response("Invalid JSON", { status: 400 });
-      }
+    // Tenta fazer upgrade para WebSocket
+    if (server.upgrade(req, { data: { id: crypto.randomUUID() } })) {
+      // Se o upgrade foi aceito, não retornamos Response
+      return;
     }
 
     // Resposta HTTP padrão (se não for WS)
